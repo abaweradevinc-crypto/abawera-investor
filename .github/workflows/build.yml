@@ -3,33 +3,30 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-22.04
-steps:
-- uses: actions/checkout@v4
-- uses: actions/setup-python@v5
-  with:
-    python-version: '3.11'
-- name: Install deps
-  run: |
-    sudo apt update
-    sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev
-- name: Install Buildozer
-  run: pip install buildozer cython virtualenv
-- name: Build APK
-  continue-on-error: true
-  env:
-    GRADLE_OPTS: "-Xmx4096m -Dorg.gradle.daemon=false"
-    JAVA_OPTS: "-Xmx4096m"
-  run: yes | buildozer android debug
-- name: Find APK
-  if: always()
-  run: |
-    find . -name '*.apk' -type f || echo 'no apk'
-    ls -la bin/ || echo 'no bin'
-- uses: actions/upload-artifact@v4
-  if: always()
-  with:
-    name: abawera-apk
-    path: '**/*.apk'
-    if-no-files-found: warn
-    retention-days: 30
-
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install deps
+      run: |
+        sudo apt update
+        sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev
+    - name: Install Buildozer
+      run: pip install buildozer cython virtualenv
+    - name: Build APK
+      continue-on-error: true
+      env:
+        GRADLE_OPTS: "-Xmx4096m -Dorg.gradle.daemon=false"
+        JAVA_OPTS: "-Xmx4096m"
+      run: yes | buildozer android debug
+    - name: Find APK
+      if: always()
+      run: |
+        find . -name "*.apk" -type f || echo no-apk
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: abawera-apk
+        path: "**/*.apk"
+        if-no-files-found: warn
