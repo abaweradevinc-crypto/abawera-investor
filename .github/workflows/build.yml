@@ -16,16 +16,27 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev
-    - name: Force Java 17
+    - name: Pre-install modern Android cmdline-tools
       run: |
-        echo "JAVA_HOME="
-        java -version
-        javac -version
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk
+        cd /home/runner/.buildozer/android/platform/android-sdk
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+        unzip -q cmdline-tools.zip
+        mkdir -p cmdline-tools/latest
+        mv cmdline-tools/bin cmdline-tools/lib cmdline-tools/NOTICE.txt cmdline-tools/source.properties cmdline-tools/latest/ 2>/dev/null || true
+        mkdir -p tools/bin
+        ln -sf /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager tools/bin/sdkmanager
+        ln -sf /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/avdmanager tools/bin/avdmanager
+        export ANDROID_HOME=/home/runner/.buildozer/android/platform/android-sdk
+        export PATH=/cmdline-tools/latest/bin:/data/data/com.termux/files/usr/bin
+        yes | /cmdline-tools/latest/bin/sdkmanager --licenses || true
+        /cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
     - name: Install Buildozer
       run: pip install buildozer cython virtualenv
     - name: Build APK
       continue-on-error: true
       env:
+        ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
         GRADLE_OPTS: "-Xmx4096m -Dorg.gradle.daemon=false"
         JAVA_OPTS: "-Xmx4096m"
       run: yes | buildozer android debug 2>&1 | tee build.log | tail -200
