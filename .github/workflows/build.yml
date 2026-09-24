@@ -19,13 +19,12 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev coreutils
-    - name: Pre-install modern Android cmdline-tools
+    - name: Pre-install cmdline-tools
       run: |
-        mkdir -p /home/runner/.buildozer/android/platform/android-sdk
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest
         cd /home/runner/.buildozer/android/platform/android-sdk
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
         unzip -q cmdline-tools.zip
-        mkdir -p cmdline-tools/latest
         mv cmdline-tools/bin cmdline-tools/lib cmdline-tools/NOTICE.txt cmdline-tools/source.properties cmdline-tools/latest/ 2>/dev/null || true
         mkdir -p tools/bin
         ln -sf /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
@@ -39,18 +38,25 @@ jobs:
       env:
         GRADLE_OPTS: "-Xmx4096m -Dorg.gradle.daemon=false"
         JAVA_OPTS: "-Xmx4096m"
-      run: yes | buildozer android debug 2>&1 | tee build.log | tail -200 || true
+      run: |
+        yes | buildozer android debug 2>&1 | tee build_full.log
+        echo '=== p4a log tail ==='
+        find /home/runner/.buildozer -name "*.log" -exec echo "=== {} ===" \; -exec tail -200 {} \; 2>/dev/null || true
     - name: Find APK
       if: always()
       run: |
         find . -name "*.apk" -type f || echo no-apk
-    - name: Build Log Tail
+        find /home/runner/.buildozer -name "*.apk" -type f || echo no-apk-in-buildozer
+    - name: Show p4a dists directory
       if: always()
       run: |
-        if [ -f build.log ]; then tail -100 build.log; fi
+        ls -la /home/runner/.buildozer/android/platform/build-arm64-v8a/dists/ 2>/dev/null || echo no-dists
+        ls -la /home/runner/.buildozer/android/platform/build-arm64-v8a/dists/abawerainvestor/ 2>/dev/null || echo no-dist-dir
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: abawera-apk
-        path: "**/*.apk"
+        name: build-logs
+        path: |
+          build_full.log
+          **/*.apk
         if-no-files-found: warn
