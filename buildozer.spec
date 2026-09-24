@@ -13,15 +13,15 @@ version = 1.0.0
 requirements = python3,kivy==2.3.1,kivymd==1.1.1,requests,sqlalchemy,certifi,urllib3,chardet,idna,pillow
 orientation = portrait
 fullscreen = 0
-android.presplash_color = #FFFFFF
+# android.presplash_color removed
 android.permissions = INTERNET,ACCESS_NETWORK_STATE,ACCESS_WIFI_STATE
-android.api = 33
-android.minapi = 24
+android.api = 31
+android.minapi = 21
 android.ndk = 25b
 android.sdk = 33
 android.archs = arm64-v8a
 android.allow_backup = True
-android.apptheme = "@android:style/Theme.Material.Light"
+# android.apptheme removed for AGP compat
 android.logcat_filters = *:S python:D kivy:D
 android.debug = 1
 
