@@ -4,7 +4,18 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
 
 Base = declarative_base()
-engine = create_engine('sqlite:///abawera.db', echo=False)
+import os as _os
+def _get_db_path():
+    try:
+        from kivy.app import App
+        app = App.get_running_app()
+        if app:
+            return _os.path.join(app.user_data_dir, 'abawera.db')
+    except Exception:
+        pass
+    return _os.path.join(_os.path.expanduser('~'), 'abawera.db')
+DB_PATH = _get_db_path()
+engine = create_engine('sqlite:///' + DB_PATH, echo=False)
 Session = sessionmaker(bind=engine)
 
 class User(Base):
