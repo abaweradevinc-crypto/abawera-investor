@@ -10,7 +10,7 @@ source.exclude_dirs = tests, bin, venv, .git
 source.exclude_patterns = license,images/*/*.jpg
 
 version = 1.0.0
-requirements = python3,kivy==2.3.1,kivymd==1.1.1,requests,sqlalchemy,typing_extensions,certifi,urllib3,chardet,idna,pillow
+requirements = python3,kivy==2.3.1,kivymd==1.1.1,requests,sqlalchemy==1.4.54,mako,pytz,typing_extensions,certifi,urllib3,chardet,idna,pillow
 orientation = portrait
 fullscreen = 0
 # android.presplash_color removed
